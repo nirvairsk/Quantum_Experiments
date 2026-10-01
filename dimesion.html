@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Hidden Dimension</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 60px auto;
+      padding: 20px;
+      color: #222;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .world {
+      border: 2px solid #222;
+      border-radius: 10px;
+      height: 350px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 30px 0;
+      overflow: hidden;
+    }
+
+    #object {
+      width: 8px;
+      height: 8px;
+      background: #222;
+      border-radius: 50%;
+      transition: all 0.5s ease;
+    }
+
+    button {
+      padding: 12px 20px;
+      margin: 5px;
+      border: 1px solid #333;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #eee;
+    }
+
+    #question,
+    #result {
+      margin-top: 25px;
+      padding: 20px;
+      border-radius: 10px;
+      background: #f5f5f5;
+    }
+
+    #question {
+      display: none;
+    }
+
+    #result {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>The Hidden Dimension</h1>
+
+  <p>
+    You are a 2D observer.
+    You can see only what exists inside your world.
+  </p>
+
+  <div class="world">
+    <div id="object"></div>
+  </div>
+
+  <button id="startButton">
+    Start Observation
+  </button>
+
+  <button id="resetButton">
+    Reset
+  </button>
+
+  <div id="message">
+    Watch carefully. Something is about to happen.
+  </div>
+
+  <div id="question">
+
+    <h3>What do you think happened?</h3>
+
+    <button onclick="answer('expand')">
+      Something inside my world expanded.
+    </button>
+
+    <button onclick="answer('sphere')">
+      Something passed through my world.
+    </button>
+
+    <button onclick="answer('unknown')">
+      I don't have enough information.
+    </button>
+
+  </div>
+
+  <div id="result"></div>
+
+
+  <script>
+
+    const object = document.getElementById("object");
+    const message = document.getElementById("message");
+    const question = document.getElementById("question");
+    const result = document.getElementById("result");
+
+    const startButton = document.getElementById("startButton");
+    const resetButton = document.getElementById("resetButton");
+
+
+    // The observations available to the 2D observer
+    const observations = [
+      8,
+      20,
+      50,
+      100,
+      50,
+      20,
+      8
+    ];
+
+
+    function changeSize(size) {
+
+      object.style.width = size + "px";
+      object.style.height = size + "px";
+
+    }
+
+
+    startButton.addEventListener("click", function () {
+
+      startButton.disabled = true;
+
+      message.innerText =
+        "Observation in progress...";
+
+      question.style.display = "none";
+      result.style.display = "none";
+
+
+      let i = 0;
+
+      changeSize(observations[i]);
+
+
+      const animation = setInterval(function () {
+
+        i++;
+
+        if (i >= observations.length) {
+
+          clearInterval(animation);
+
+          message.innerText =
+            "Observation complete.";
+
+          question.style.display = "block";
+
+          return;
+        }
+
+        changeSize(observations[i]);
+
+      }, 600);
+
+    });
+
+
+    function answer(choice) {
+
+      question.style.display = "none";
+      result.style.display = "block";
+
+
+      if (choice === "sphere") {
+
+        result.innerHTML = `
+          <strong>Your hypothesis matches our hidden model.</strong>
+
+          <p>
+          A 3D sphere passed through the 2D world.
+          </p>
+
+          <p>
+          But notice something important:
+          you never actually saw the sphere.
+          You only observed its changing cross-section.
+          </p>
+        `;
+
+      }
+
+
+      else if (choice === "expand") {
+
+        result.innerHTML = `
+          <strong>That is a possible explanation.</strong>
+
+          <p>
+          But is it the only explanation?
+          </p>
+
+          <p>
+          The interesting scientific question is:
+          can we distinguish between competing explanations
+          using only observations?
+          </p>
+        `;
+
+      }
+
+
+      else {
+
+        result.innerHTML = `
+          <strong>Good scientific caution.</strong>
+
+          <p>
+          An observation does not automatically prove
+          its explanation.
+          </p>
+
+          <p>
+          Let's collect more evidence.
+          </p>
+        `;
+
+      }
+
+    }
+
+
+    resetButton.addEventListener("click", function () {
+
+      changeSize(8);
+
+      message.innerText =
+        "Watch carefully. Something is about to happen.";
+
+      question.style.display = "none";
+      result.style.display = "none";
+
+      startButton.disabled = false;
+
+    });
+
+  </script>
+
+</body>
+</html>
