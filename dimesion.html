@@ -9,7 +9,7 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 900px;
+      max-width: 950px;
       margin: 40px auto;
       padding: 20px;
       color: #222;
@@ -119,10 +119,6 @@
       border-top: 1px solid #ccc;
     }
 
-    .slider-container {
-      margin-top: 15px;
-    }
-
     input[type="range"] {
       width: 100%;
     }
@@ -130,10 +126,12 @@
     .values {
       display: flex;
       justify-content: space-between;
+      gap: 15px;
+      flex-wrap: wrap;
+
       margin-top: 10px;
 
       font-family: monospace;
-      font-size: 15px;
     }
 
     .graph-container {
@@ -142,7 +140,7 @@
 
     canvas {
       width: 100%;
-      max-width: 800px;
+      max-width: 850px;
       height: 350px;
 
       border: 1px solid #ccc;
@@ -162,15 +160,53 @@
       border-radius: 10px;
     }
 
-    .formula {
-      margin-top: 20px;
+    #recordedData {
+      display: none;
+
+      margin-top: 30px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th,
+    td {
+      padding: 8px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+
+    th {
+      background: #eee;
+    }
+
+    .reconstruction {
+      display: none;
+
+      margin-top: 30px;
+    }
+
+    #reconstructionCanvas {
+      width: 100%;
+      max-width: 850px;
+      height: 400px;
+
+      border: 1px solid #ccc;
+      border-radius: 10px;
+
+      background: white;
+      display: block;
+    }
+
+    .reconstruction-text {
+      margin-top: 15px;
       padding: 15px;
 
-      background: #fafafa;
-      border-left: 4px solid #333;
-
-      font-family: monospace;
-      font-size: 16px;
+      background: #f3f3f3;
+      border-radius: 10px;
     }
   </style>
 </head>
@@ -179,7 +215,6 @@
 <body>
 
   <h1>The Hidden Dimension</h1>
-
 
   <div class="intro">
 
@@ -207,10 +242,6 @@
 
     </div>
 
-
-    <!-- ===================================================
-         CONTROLS
-         =================================================== -->
 
     <div class="controls">
 
@@ -282,34 +313,36 @@
 
 
     <!-- ===================================================
+         RESULT
+         =================================================== -->
+
+    <div id="result"></div>
+
+
+    <!-- ===================================================
          INVESTIGATION
          =================================================== -->
 
     <div id="investigation">
 
       <h3>
-        Now investigate.
+        Investigate the hidden position
       </h3>
 
       <p>
         The sphere itself remains hidden.
-        Move its position and watch what the
-        2D observer sees.
+        Move its position and observe the cross-section.
       </p>
 
 
-      <div class="slider-container">
-
-        <input
-          id="positionSlider"
-          type="range"
-          min="-120"
-          max="120"
-          value="0"
-          step="1"
-        />
-
-      </div>
+      <input
+        id="positionSlider"
+        type="range"
+        min="-120"
+        max="120"
+        value="0"
+        step="1"
+      />
 
 
       <div class="values">
@@ -334,46 +367,118 @@
       <div class="graph-container">
 
         <h3>
-          What relationship do you see?
+          Your measurements
         </h3>
 
         <canvas
           id="graph"
-          width="800"
+          width="850"
           height="350">
         </canvas>
 
       </div>
 
 
-      <div id="investigationQuestion"
-           style="
-             margin-top:20px;
-             padding:15px;
-             background:#f5f5f5;
-             border-radius:10px;
-           ">
+      <!-- =================================================
+           RECORD BUTTON
+           ================================================= -->
 
-        <strong>
-          Look at the circle and the graph.
-        </strong>
+      <div class="controls">
+
+        <button
+          id="recordButton">
+
+          Record this slice
+
+        </button>
+
+        <button
+          id="clearMeasurementsButton">
+
+          Clear measurements
+
+        </button>
+
+      </div>
+
+
+      <!-- =================================================
+           RECORDED DATA
+           ================================================= -->
+
+      <div id="recordedData">
+
+        <h3>
+          Recorded slices
+        </h3>
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>Hidden position z</th>
+
+              <th>Visible radius r</th>
+
+            </tr>
+
+          </thead>
+
+          <tbody id="measurementTable">
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+
+      <!-- =================================================
+           RECONSTRUCTION
+           ================================================= -->
+
+      <div class="reconstruction" id="reconstruction">
+
+        <h3>
+          Reconstruct the hidden object
+        </h3>
 
         <p>
-          What do you think connects the hidden
-          position <em>z</em> to the visible
-          radius <em>r</em>?
+          You have collected measurements from different
+          positions. Now combine the slices.
         </p>
+
+
+        <div class="controls">
+
+          <button
+            id="reconstructButton">
+
+            Reconstruct
+
+          </button>
+
+        </div>
+
+
+        <canvas
+          id="reconstructionCanvas"
+          width="850"
+          height="400">
+        </canvas>
+
+
+        <div
+          class="reconstruction-text"
+          id="reconstructionText">
+
+        </div>
 
       </div>
 
     </div>
-
-
-    <!-- ===================================================
-         RESULT
-         =================================================== -->
-
-    <div id="result"></div>
 
   </div>
 
@@ -382,7 +487,7 @@
 
     /*
     ==========================================================
-    1. HTML ELEMENTS
+    1. ELEMENTS
     ==========================================================
     */
 
@@ -395,11 +500,11 @@
     const question =
       document.getElementById("question");
 
-    const investigation =
-      document.getElementById("investigation");
-
     const result =
       document.getElementById("result");
+
+    const investigation =
+      document.getElementById("investigation");
 
     const startButton =
       document.getElementById("startButton");
@@ -416,6 +521,51 @@
     const radiusValue =
       document.getElementById("radiusValue");
 
+    const recordButton =
+      document.getElementById("recordButton");
+
+    const clearMeasurementsButton =
+      document.getElementById(
+        "clearMeasurementsButton"
+      );
+
+    const recordedData =
+      document.getElementById(
+        "recordedData"
+      );
+
+    const measurementTable =
+      document.getElementById(
+        "measurementTable"
+      );
+
+    const reconstruction =
+      document.getElementById(
+        "reconstruction"
+      );
+
+    const reconstructButton =
+      document.getElementById(
+        "reconstructButton"
+      );
+
+    const reconstructionCanvas =
+      document.getElementById(
+        "reconstructionCanvas"
+      );
+
+    const reconstructionText =
+      document.getElementById(
+        "reconstructionText"
+      );
+
+
+    /*
+    ==========================================================
+    2. GRAPH
+    ==========================================================
+    */
+
     const graph =
       document.getElementById("graph");
 
@@ -425,9 +575,12 @@
 
     /*
     ==========================================================
-    2. SPHERE
+    3. SPHERE RADIUS
+    ==========================================================
 
-    R is the radius of the hidden 3D sphere.
+    This is the only information about the hidden
+    object that our simulation starts with.
+
     ==========================================================
     */
 
@@ -436,7 +589,7 @@
 
     /*
     ==========================================================
-    3. POSITIONS USED DURING THE FIRST OBSERVATION
+    4. OBSERVATION POSITIONS
     ==========================================================
     */
 
@@ -457,14 +610,22 @@
 
     /*
     ==========================================================
-    4. GEOMETRY
+    5. MEASUREMENTS
+
+    The observer will gradually build this list.
+
+    ==========================================================
+    */
+
+    let measurements = [];
+
+
+    /*
+    ==========================================================
+    6. GEOMETRY
 
     r = √(R² - z²)
 
-    If |z| > R,
-    the sphere does not intersect the 2D plane.
-
-    Therefore r = 0.
     ==========================================================
     */
 
@@ -486,7 +647,7 @@
 
     /*
     ==========================================================
-    5. DISPLAY CROSS-SECTION
+    7. DISPLAY CROSS-SECTION
     ==========================================================
     */
 
@@ -521,11 +682,7 @@
 
     /*
     ==========================================================
-    6. DRAW GRAPH
-
-    X axis = hidden position z
-
-    Y axis = visible radius r
+    8. DRAW GRAPH
     ==========================================================
     */
 
@@ -538,10 +695,6 @@
         graph.height;
 
 
-      /*
-      Clear graph
-      */
-
       ctx.clearRect(
         0,
         0,
@@ -550,38 +703,18 @@
       );
 
 
-      /*
-      Graph margins
-      */
-
-      const left =
-        60;
-
-      const right =
-        25;
-
-      const top =
-        25;
-
-      const bottom =
-        50;
+      const left = 60;
+      const right = 25;
+      const top = 25;
+      const bottom = 50;
 
 
       const graphWidth =
-        width -
-        left -
-        right;
+        width - left - right;
 
       const graphHeight =
-        height -
-        top -
-        bottom;
+        height - top - bottom;
 
-
-      /*
-      Convert mathematical coordinates
-      to canvas coordinates.
-      */
 
       function xToCanvas(x) {
 
@@ -603,21 +736,14 @@
 
 
       /*
-      ----------------------------------------
       GRID
-      ----------------------------------------
       */
 
       ctx.strokeStyle =
         "#dddddd";
 
-      ctx.lineWidth =
-        1;
+      ctx.lineWidth = 1;
 
-
-      /*
-      Horizontal grid lines
-      */
 
       for (
         let y = 0;
@@ -644,10 +770,6 @@
         ctx.stroke();
 
 
-        /*
-        Y labels
-        */
-
         ctx.fillStyle =
           "#444";
 
@@ -662,10 +784,6 @@
 
       }
 
-
-      /*
-      Vertical grid lines
-      */
 
       for (
         let x = -100;
@@ -695,9 +813,6 @@
         ctx.fillStyle =
           "#444";
 
-        ctx.font =
-          "12px Arial";
-
         ctx.fillText(
           x,
           canvasX - 10,
@@ -708,9 +823,7 @@
 
 
       /*
-      ----------------------------------------
       AXES
-      ----------------------------------------
       */
 
       ctx.strokeStyle =
@@ -719,10 +832,6 @@
       ctx.lineWidth =
         1.5;
 
-
-      /*
-      X axis
-      */
 
       ctx.beginPath();
 
@@ -738,10 +847,6 @@
 
       ctx.stroke();
 
-
-      /*
-      Y axis
-      */
 
       ctx.beginPath();
 
@@ -759,23 +864,18 @@
 
 
       /*
-      ----------------------------------------
-      MATHEMATICAL CURVE
-      ----------------------------------------
+      THEORETICAL CURVE
       */
 
       ctx.strokeStyle =
         "#222";
 
-      ctx.lineWidth =
-        3;
-
+      ctx.lineWidth = 3;
 
       ctx.beginPath();
 
 
-      let firstPoint =
-        true;
+      let firstPoint = true;
 
 
       for (
@@ -802,12 +902,9 @@
             y
           );
 
-          firstPoint =
-            false;
+          firstPoint = false;
 
-        }
-
-        else {
+        } else {
 
           ctx.lineTo(
             x,
@@ -823,9 +920,48 @@
 
 
       /*
-      ----------------------------------------
-      CURRENT POSITION POINT
-      ----------------------------------------
+      RECORDED MEASUREMENTS
+
+      These are the actual observations
+      collected by the user.
+      */
+
+      measurements.forEach(
+        function (measurement) {
+
+          const x =
+            xToCanvas(
+              measurement.z
+            );
+
+          const y =
+            yToCanvas(
+              measurement.r
+            );
+
+
+          ctx.fillStyle =
+            "#555";
+
+
+          ctx.beginPath();
+
+          ctx.arc(
+            x,
+            y,
+            5,
+            0,
+            Math.PI * 2
+          );
+
+          ctx.fill();
+
+        }
+      );
+
+
+      /*
+      CURRENT POSITION
       */
 
       const currentRadius =
@@ -857,9 +993,7 @@
 
 
       /*
-      ----------------------------------------
       LABELS
-      ----------------------------------------
       */
 
       ctx.fillStyle =
@@ -900,12 +1034,11 @@
 
     /*
     ==========================================================
-    7. FIRST OBSERVATION
+    9. FIRST OBSERVATION
     ==========================================================
     */
 
-    let animationTimer =
-      null;
+    let animationTimer = null;
 
 
     startButton.addEventListener(
@@ -919,12 +1052,10 @@
         question.style.display =
           "none";
 
-
-        investigation.style.display =
+        result.style.display =
           "none";
 
-
-        result.style.display =
+        investigation.style.display =
           "none";
 
 
@@ -932,8 +1063,7 @@
           "Observation in progress...";
 
 
-        let index =
-          0;
+        let index = 0;
 
 
         showCrossSection(
@@ -990,7 +1120,7 @@
 
     /*
     ==========================================================
-    8. USER HYPOTHESIS
+    10. HYPOTHESIS
     ==========================================================
     */
 
@@ -1015,40 +1145,24 @@
               "none";
 
 
-            /*
-            --------------------------------------
-            EXPANDING CIRCLE
-            --------------------------------------
-            */
+            result.style.display =
+              "block";
+
 
             if (
-              answer ===
-              "expand"
+              answer === "expand"
             ) {
-
-              message.innerText =
-                "That explanation is possible, but it is not the only possible explanation.";
-
-
-              result.style.display =
-                "block";
-
 
               result.innerHTML = `
 
                 <strong>
-                  Good hypothesis.
+                  That is a possible explanation.
                 </strong>
 
                 <p>
-                  Something inside the 2D world
-                  could have expanded and contracted.
-                </p>
-
-                <p>
-                  But another possibility exists:
-                  a higher-dimensional object could
-                  have passed through the 2D plane.
+                  But it is not the only explanation.
+                  A higher-dimensional object could
+                  produce the same kind of observation.
                 </p>
 
               `;
@@ -1056,24 +1170,9 @@
             }
 
 
-            /*
-            --------------------------------------
-            SPHERE
-            --------------------------------------
-            */
-
             else if (
-              answer ===
-              "sphere"
+              answer === "sphere"
             ) {
-
-              message.innerText =
-                "You identified the hidden model.";
-
-
-              result.style.display =
-                "block";
-
 
               result.innerHTML = `
 
@@ -1082,15 +1181,14 @@
                 </strong>
 
                 <p>
-                  A 3D sphere passed through
-                  the 2D plane.
+                  A 3D sphere passed through the
+                  2D plane.
                 </p>
 
                 <p>
-                  The 2D observer never saw
-                  the sphere itself.
-                  It only observed the changing
-                  cross-section.
+                  But remember:
+                  the observer never directly saw
+                  the sphere.
                 </p>
 
               `;
@@ -1098,21 +1196,7 @@
             }
 
 
-            /*
-            --------------------------------------
-            NOT ENOUGH INFORMATION
-            --------------------------------------
-            */
-
             else {
-
-              message.innerText =
-                "That is a scientifically cautious answer.";
-
-
-              result.style.display =
-                "block";
-
 
               result.innerHTML = `
 
@@ -1125,29 +1209,18 @@
                   prove its explanation.
                 </p>
 
-                <p>
-                  We need more evidence to distinguish
-                  between competing explanations.
-                </p>
-
               `;
 
             }
 
 
             /*
-            --------------------------------------
-            START INVESTIGATION
-            --------------------------------------
+            Start investigation
             */
 
             investigation.style.display =
               "block";
 
-
-            /*
-            Start at z = 0
-            */
 
             positionSlider.value =
               0;
@@ -1165,9 +1238,7 @@
 
     /*
     ==========================================================
-    9. SLIDER
-
-    User controls the hidden position.
+    11. SLIDER
     ==========================================================
     */
 
@@ -1189,7 +1260,623 @@
 
     /*
     ==========================================================
-    10. RESET
+    12. RECORD A SLICE
+    ==========================================================
+    */
+
+    recordButton.addEventListener(
+      "click",
+      function () {
+
+        const z =
+          Number(
+            positionSlider.value
+          );
+
+
+        const r =
+          calculateRadius(z);
+
+
+        /*
+        Don't record the same position twice.
+        */
+
+        const alreadyRecorded =
+          measurements.some(
+            function (measurement) {
+
+              return measurement.z === z;
+
+            }
+          );
+
+
+        if (
+          alreadyRecorded
+        ) {
+
+          return;
+
+        }
+
+
+        measurements.push({
+
+          z: z,
+
+          r: r
+
+        });
+
+
+        /*
+        Sort measurements
+        by hidden position.
+        */
+
+        measurements.sort(
+          function (a, b) {
+
+            return a.z - b.z;
+
+          }
+        );
+
+
+        updateMeasurementTable();
+
+
+        drawGraph(z);
+
+
+        /*
+        Once enough measurements
+        exist, allow reconstruction.
+        */
+
+        if (
+          measurements.length >= 3
+        ) {
+
+          reconstruction.style.display =
+            "block";
+
+        }
+
+      }
+    );
+
+
+    /*
+    ==========================================================
+    13. UPDATE TABLE
+    ==========================================================
+    */
+
+    function updateMeasurementTable() {
+
+      measurementTable.innerHTML =
+        "";
+
+
+      measurements.forEach(
+        function (measurement) {
+
+          const row =
+            document.createElement("tr");
+
+
+          const zCell =
+            document.createElement("td");
+
+
+          const rCell =
+            document.createElement("td");
+
+
+          zCell.textContent =
+            measurement.z;
+
+
+          rCell.textContent =
+            measurement.r.toFixed(2);
+
+
+          row.appendChild(
+            zCell
+          );
+
+          row.appendChild(
+            rCell
+          );
+
+
+          measurementTable.appendChild(
+            row
+          );
+
+        }
+      );
+
+
+      if (
+        measurements.length > 0
+      ) {
+
+        recordedData.style.display =
+          "block";
+
+      } else {
+
+        recordedData.style.display =
+          "none";
+
+      }
+
+    }
+
+
+    /*
+    ==========================================================
+    14. CLEAR MEASUREMENTS
+    ==========================================================
+    */
+
+    clearMeasurementsButton.addEventListener(
+      "click",
+      function () {
+
+        measurements = [];
+
+
+        updateMeasurementTable();
+
+
+        reconstruction.style.display =
+          "none";
+
+
+        drawGraph(
+          Number(
+            positionSlider.value
+          )
+        );
+
+      }
+    );
+
+
+    /*
+    ==========================================================
+    15. RECONSTRUCTION
+    ==========================================================
+
+    We are NOT drawing a pre-made sphere.
+
+    We take the recorded measurements:
+
+        z → r
+
+    and draw each observed circular slice
+    at its corresponding z position.
+
+    From the side, those slices form the
+    reconstructed profile.
+
+    ==========================================================
+    */
+
+    reconstructButton.addEventListener(
+      "click",
+      function () {
+
+        if (
+          measurements.length < 3
+        ) {
+
+          return;
+
+        }
+
+
+        drawReconstruction();
+
+
+        reconstructionText.innerHTML = `
+
+          <strong>
+            Reconstruction complete.
+          </strong>
+
+          <p>
+            You never directly observed the 3D object.
+            You collected 2D cross-sections at
+            different positions.
+          </p>
+
+          <p>
+            When those measurements are placed at
+            their corresponding positions, they form
+            the profile of the hidden object.
+          </p>
+
+          <p>
+            This is the basic idea:
+          </p>
+
+          <div class="formula">
+
+            observations → measurements → reconstruction
+
+          </div>
+
+        `;
+
+      }
+    );
+
+
+    /*
+    ==========================================================
+    16. DRAW RECONSTRUCTION
+    ==========================================================
+    */
+
+    function drawReconstruction() {
+
+      const canvas =
+        reconstructionCanvas;
+
+      const context =
+        canvas.getContext("2d");
+
+
+      const width =
+        canvas.width;
+
+      const height =
+        canvas.height;
+
+
+      context.clearRect(
+        0,
+        0,
+        width,
+        height
+      );
+
+
+      /*
+      Coordinate system
+
+      Horizontal axis = z
+      Vertical axis   = radius
+      */
+
+      const centerX =
+        width / 2;
+
+      const centerY =
+        height / 2;
+
+
+      const scaleX =
+        2.8;
+
+      const scaleY =
+        1.5;
+
+
+      /*
+      Draw central axis
+      */
+
+      context.strokeStyle =
+        "#cccccc";
+
+      context.lineWidth =
+        1;
+
+
+      context.beginPath();
+
+      context.moveTo(
+        50,
+        centerY
+      );
+
+      context.lineTo(
+        width - 50,
+        centerY
+      );
+
+      context.stroke();
+
+
+      /*
+      Draw the reconstructed upper
+      and lower boundaries.
+
+      Each recorded measurement gives:
+
+          z
+          r
+
+      */
+
+      const sorted =
+        [...measurements].sort(
+          function (a, b) {
+
+            return a.z - b.z;
+
+          }
+        );
+
+
+      /*
+      Upper boundary
+      */
+
+      context.strokeStyle =
+        "#222";
+
+      context.lineWidth =
+        3;
+
+
+      context.beginPath();
+
+
+      sorted.forEach(
+        function (measurement, index) {
+
+          const x =
+            centerX +
+            measurement.z *
+            scaleX;
+
+
+          const y =
+            centerY -
+            measurement.r *
+            scaleY;
+
+
+          if (
+            index === 0
+          ) {
+
+            context.moveTo(
+              x,
+              y
+            );
+
+          } else {
+
+            context.lineTo(
+              x,
+              y
+            );
+
+          }
+
+        }
+      );
+
+
+      context.stroke();
+
+
+      /*
+      Lower boundary
+      */
+
+      context.beginPath();
+
+
+      [...sorted]
+        .reverse()
+        .forEach(
+          function (
+            measurement,
+            index
+          ) {
+
+            const x =
+              centerX +
+              measurement.z *
+              scaleX;
+
+
+            const y =
+              centerY +
+              measurement.r *
+              scaleY;
+
+
+            if (
+              index === 0
+            ) {
+
+              context.moveTo(
+                x,
+                y
+              );
+
+            } else {
+
+              context.lineTo(
+                x,
+                y
+              );
+
+            }
+
+          }
+        );
+
+
+      context.stroke();
+
+
+      /*
+      Connect the ends
+      */
+
+      if (
+        sorted.length > 0
+      ) {
+
+        const first =
+          sorted[0];
+
+        const last =
+          sorted[
+            sorted.length - 1
+          ];
+
+
+        context.beginPath();
+
+        context.moveTo(
+          centerX +
+          first.z *
+          scaleX,
+
+          centerY -
+          first.r *
+          scaleY
+        );
+
+
+        context.lineTo(
+          centerX +
+          first.z *
+          scaleX,
+
+          centerY +
+          first.r *
+          scaleY
+        );
+
+
+        context.moveTo(
+          centerX +
+          last.z *
+          scaleX,
+
+          centerY -
+          last.r *
+          scaleY
+        );
+
+
+        context.lineTo(
+          centerX +
+          last.z *
+          scaleX,
+
+          centerY +
+          last.r *
+          scaleY
+        );
+
+
+        context.stroke();
+
+      }
+
+
+      /*
+      Draw measurement points
+      */
+
+      context.fillStyle =
+        "#222";
+
+
+      sorted.forEach(
+        function (measurement) {
+
+          const x =
+            centerX +
+            measurement.z *
+            scaleX;
+
+
+          const upperY =
+            centerY -
+            measurement.r *
+            scaleY;
+
+
+          const lowerY =
+            centerY +
+            measurement.r *
+            scaleY;
+
+
+          context.beginPath();
+
+          context.arc(
+            x,
+            upperY,
+            5,
+            0,
+            Math.PI * 2
+          );
+
+          context.fill();
+
+
+          context.beginPath();
+
+          context.arc(
+            x,
+            lowerY,
+            5,
+            0,
+            Math.PI * 2
+          );
+
+          context.fill();
+
+        }
+      );
+
+
+      /*
+      Labels
+      */
+
+      context.fillStyle =
+        "#222";
+
+      context.font =
+        "14px Arial";
+
+
+      context.fillText(
+        "reconstructed hidden object",
+        20,
+        25
+      );
+
+
+      context.fillText(
+        "hidden position z",
+        width / 2 - 45,
+        height - 15
+      );
+
+    }
+
+
+    /*
+    ==========================================================
+    17. RESET
     ==========================================================
     */
 
@@ -1198,8 +1885,7 @@
       function () {
 
         if (
-          animationTimer !==
-          null
+          animationTimer !== null
         ) {
 
           clearInterval(
@@ -1212,38 +1898,17 @@
         }
 
 
-        /*
-        Reset visual
-        */
+        measurements = [];
+
 
         showCrossSection(120);
 
-
-        /*
-        Reset slider
-        */
 
         positionSlider.value =
           0;
 
 
-        zValue.textContent =
-          "0";
-
-
-        radiusValue.textContent =
-          "100";
-
-
-        /*
-        Hide later stages
-        */
-
         question.style.display =
-          "none";
-
-
-        investigation.style.display =
           "none";
 
 
@@ -1251,20 +1916,35 @@
           "none";
 
 
-        /*
-        Reset message
-        */
+        investigation.style.display =
+          "none";
+
+
+        recordedData.style.display =
+          "none";
+
+
+        reconstruction.style.display =
+          "none";
+
+
+        measurementTable.innerHTML =
+          "";
+
+
+        reconstructionText.innerHTML =
+          "";
+
 
         message.innerText =
           "Watch carefully. Something is about to pass through your world.";
 
 
-        /*
-        Enable start
-        */
-
         startButton.disabled =
           false;
+
+
+        drawGraph(120);
 
       }
     );
@@ -1272,7 +1952,7 @@
 
     /*
     ==========================================================
-    INITIAL STATE
+    18. INITIAL STATE
     ==========================================================
     */
 
