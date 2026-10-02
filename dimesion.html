@@ -3,264 +3,1280 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>The Hidden Dimension</title>
 
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 800px;
-      margin: 60px auto;
+      max-width: 900px;
+      margin: 40px auto;
       padding: 20px;
       color: #222;
+      line-height: 1.5;
     }
 
     h1 {
       text-align: center;
     }
 
-    .world {
-      border: 2px solid #222;
-      border-radius: 10px;
-      height: 350px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 30px 0;
-      overflow: hidden;
+    .intro {
+      text-align: center;
+      margin-bottom: 25px;
     }
 
-    #object {
-      width: 8px;
-      height: 8px;
-      background: #222;
+    .world {
+      border: 2px solid #222;
+      border-radius: 12px;
+      padding: 20px;
+      background: #fafafa;
+    }
+
+    .plane {
+      height: 300px;
+      border: 2px solid #555;
+      border-radius: 10px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      overflow: hidden;
+      background: white;
+    }
+
+    #crossSection {
+      width: 0;
+      height: 0;
+
       border-radius: 50%;
-      transition: all 0.5s ease;
+      background: #222;
+
+      transition:
+        width 0.2s ease,
+        height 0.2s ease;
+    }
+
+    .controls {
+      text-align: center;
+      margin-top: 18px;
     }
 
     button {
-      padding: 12px 20px;
+      padding: 11px 18px;
       margin: 5px;
+
       border: 1px solid #333;
       border-radius: 8px;
+
       background: white;
       cursor: pointer;
+
+      font-size: 15px;
     }
 
     button:hover {
       background: #eee;
     }
 
-    #question,
-    #result {
-      margin-top: 25px;
-      padding: 20px;
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    #message {
+      margin-top: 20px;
+      padding: 15px;
+
+      background: #f3f3f3;
       border-radius: 10px;
-      background: #f5f5f5;
+
+      text-align: center;
     }
 
     #question {
       display: none;
+
+      margin-top: 20px;
+      padding: 20px;
+
+      background: #f3f3f3;
+      border-radius: 10px;
+    }
+
+    #question button {
+      display: block;
+      width: 100%;
+      text-align: left;
+    }
+
+    #investigation {
+      display: none;
+
+      margin-top: 25px;
+      padding-top: 20px;
+
+      border-top: 1px solid #ccc;
+    }
+
+    .slider-container {
+      margin-top: 15px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    .values {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+
+      font-family: monospace;
+      font-size: 15px;
+    }
+
+    .graph-container {
+      margin-top: 30px;
+    }
+
+    canvas {
+      width: 100%;
+      max-width: 800px;
+      height: 350px;
+
+      border: 1px solid #ccc;
+      border-radius: 10px;
+
+      background: white;
+      display: block;
     }
 
     #result {
       display: none;
+
+      margin-top: 20px;
+      padding: 20px;
+
+      background: #f3f3f3;
+      border-radius: 10px;
+    }
+
+    .formula {
+      margin-top: 20px;
+      padding: 15px;
+
+      background: #fafafa;
+      border-left: 4px solid #333;
+
+      font-family: monospace;
+      font-size: 16px;
     }
   </style>
 </head>
+
 
 <body>
 
   <h1>The Hidden Dimension</h1>
 
-  <p>
-    You are a 2D observer.
-    You can see only what exists inside your world.
-  </p>
+
+  <div class="intro">
+
+    <p>
+      Imagine you are a creature living in a 2D world.
+    </p>
+
+    <p>
+      You can observe only what exists inside your plane.
+      You cannot see anything above or below it.
+    </p>
+
+  </div>
+
+
+  <!-- =====================================================
+       2D OBSERVER'S WORLD
+       ===================================================== -->
 
   <div class="world">
-    <div id="object"></div>
+
+    <div class="plane">
+
+      <div id="crossSection"></div>
+
+    </div>
+
+
+    <!-- ===================================================
+         CONTROLS
+         =================================================== -->
+
+    <div class="controls">
+
+      <button id="startButton">
+        Start Observation
+      </button>
+
+      <button id="resetButton">
+        Reset
+      </button>
+
+    </div>
+
+
+    <!-- ===================================================
+         CONVERSATION
+         =================================================== -->
+
+    <div id="message">
+
+      Watch carefully.
+
+      Something is about to pass through your world.
+
+      You will not be shown what is causing it.
+
+    </div>
+
+
+    <!-- ===================================================
+         HYPOTHESIS
+         =================================================== -->
+
+    <div id="question">
+
+      <h3>
+        What do you think happened?
+      </h3>
+
+      <p>
+        You observed a changing shape.
+        What is your explanation?
+      </p>
+
+
+      <button data-answer="expand">
+
+        Something inside my 2D world
+        expanded and then contracted.
+
+      </button>
+
+
+      <button data-answer="sphere">
+
+        Something from outside my 2D world
+        passed through it.
+
+      </button>
+
+
+      <button data-answer="unknown">
+
+        I don't have enough information yet.
+
+      </button>
+
+    </div>
+
+
+    <!-- ===================================================
+         INVESTIGATION
+         =================================================== -->
+
+    <div id="investigation">
+
+      <h3>
+        Now investigate.
+      </h3>
+
+      <p>
+        The sphere itself remains hidden.
+        Move its position and watch what the
+        2D observer sees.
+      </p>
+
+
+      <div class="slider-container">
+
+        <input
+          id="positionSlider"
+          type="range"
+          min="-120"
+          max="120"
+          value="0"
+          step="1"
+        />
+
+      </div>
+
+
+      <div class="values">
+
+        <span>
+          Hidden position z =
+          <strong id="zValue">0</strong>
+        </span>
+
+        <span>
+          Visible radius r =
+          <strong id="radiusValue">100</strong>
+        </span>
+
+      </div>
+
+
+      <!-- =================================================
+           GRAPH
+           ================================================= -->
+
+      <div class="graph-container">
+
+        <h3>
+          What relationship do you see?
+        </h3>
+
+        <canvas
+          id="graph"
+          width="800"
+          height="350">
+        </canvas>
+
+      </div>
+
+
+      <div id="investigationQuestion"
+           style="
+             margin-top:20px;
+             padding:15px;
+             background:#f5f5f5;
+             border-radius:10px;
+           ">
+
+        <strong>
+          Look at the circle and the graph.
+        </strong>
+
+        <p>
+          What do you think connects the hidden
+          position <em>z</em> to the visible
+          radius <em>r</em>?
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <!-- ===================================================
+         RESULT
+         =================================================== -->
+
+    <div id="result"></div>
+
   </div>
-
-  <button id="startButton">
-    Start Observation
-  </button>
-
-  <button id="resetButton">
-    Reset
-  </button>
-
-  <div id="message">
-    Watch carefully. Something is about to happen.
-  </div>
-
-  <div id="question">
-
-    <h3>What do you think happened?</h3>
-
-    <button onclick="answer('expand')">
-      Something inside my world expanded.
-    </button>
-
-    <button onclick="answer('sphere')">
-      Something passed through my world.
-    </button>
-
-    <button onclick="answer('unknown')">
-      I don't have enough information.
-    </button>
-
-  </div>
-
-  <div id="result"></div>
 
 
   <script>
 
-    const object = document.getElementById("object");
-    const message = document.getElementById("message");
-    const question = document.getElementById("question");
-    const result = document.getElementById("result");
+    /*
+    ==========================================================
+    1. HTML ELEMENTS
+    ==========================================================
+    */
 
-    const startButton = document.getElementById("startButton");
-    const resetButton = document.getElementById("resetButton");
+    const crossSection =
+      document.getElementById("crossSection");
+
+    const message =
+      document.getElementById("message");
+
+    const question =
+      document.getElementById("question");
+
+    const investigation =
+      document.getElementById("investigation");
+
+    const result =
+      document.getElementById("result");
+
+    const startButton =
+      document.getElementById("startButton");
+
+    const resetButton =
+      document.getElementById("resetButton");
+
+    const positionSlider =
+      document.getElementById("positionSlider");
+
+    const zValue =
+      document.getElementById("zValue");
+
+    const radiusValue =
+      document.getElementById("radiusValue");
+
+    const graph =
+      document.getElementById("graph");
+
+    const ctx =
+      graph.getContext("2d");
 
 
-    // The observations available to the 2D observer
-    const observations = [
-      8,
-      20,
+    /*
+    ==========================================================
+    2. SPHERE
+
+    R is the radius of the hidden 3D sphere.
+    ==========================================================
+    */
+
+    const R = 100;
+
+
+    /*
+    ==========================================================
+    3. POSITIONS USED DURING THE FIRST OBSERVATION
+    ==========================================================
+    */
+
+    const observationPositions = [
+
+      -120,
+      -100,
+      -80,
+      -50,
+      0,
       50,
+      80,
       100,
-      50,
-      20,
-      8
+      120
+
     ];
 
 
-    function changeSize(size) {
+    /*
+    ==========================================================
+    4. GEOMETRY
 
-      object.style.width = size + "px";
-      object.style.height = size + "px";
+    r = √(R² - z²)
+
+    If |z| > R,
+    the sphere does not intersect the 2D plane.
+
+    Therefore r = 0.
+    ==========================================================
+    */
+
+    function calculateRadius(z) {
+
+      if (Math.abs(z) > R) {
+
+        return 0;
+
+      }
+
+      return Math.sqrt(
+        R * R -
+        z * z
+      );
 
     }
 
 
-    startButton.addEventListener("click", function () {
+    /*
+    ==========================================================
+    5. DISPLAY CROSS-SECTION
+    ==========================================================
+    */
 
-      startButton.disabled = true;
+    function showCrossSection(z) {
 
-      message.innerText =
-        "Observation in progress...";
+      const radius =
+        calculateRadius(z);
 
-      question.style.display = "none";
-      result.style.display = "none";
-
-
-      let i = 0;
-
-      changeSize(observations[i]);
+      const diameter =
+        radius * 2;
 
 
-      const animation = setInterval(function () {
+      crossSection.style.width =
+        diameter + "px";
 
-        i++;
+      crossSection.style.height =
+        diameter + "px";
 
-        if (i >= observations.length) {
 
-          clearInterval(animation);
+      zValue.textContent =
+        Math.round(z);
 
-          message.innerText =
-            "Observation complete.";
 
-          question.style.display = "block";
+      radiusValue.textContent =
+        Math.round(radius);
 
-          return;
+
+      drawGraph(z);
+
+    }
+
+
+    /*
+    ==========================================================
+    6. DRAW GRAPH
+
+    X axis = hidden position z
+
+    Y axis = visible radius r
+    ==========================================================
+    */
+
+    function drawGraph(currentZ) {
+
+      const width =
+        graph.width;
+
+      const height =
+        graph.height;
+
+
+      /*
+      Clear graph
+      */
+
+      ctx.clearRect(
+        0,
+        0,
+        width,
+        height
+      );
+
+
+      /*
+      Graph margins
+      */
+
+      const left =
+        60;
+
+      const right =
+        25;
+
+      const top =
+        25;
+
+      const bottom =
+        50;
+
+
+      const graphWidth =
+        width -
+        left -
+        right;
+
+      const graphHeight =
+        height -
+        top -
+        bottom;
+
+
+      /*
+      Convert mathematical coordinates
+      to canvas coordinates.
+      */
+
+      function xToCanvas(x) {
+
+        return left +
+          ((x + 120) / 240) *
+          graphWidth;
+
+      }
+
+
+      function yToCanvas(y) {
+
+        return top +
+          graphHeight -
+          (y / 100) *
+          graphHeight;
+
+      }
+
+
+      /*
+      ----------------------------------------
+      GRID
+      ----------------------------------------
+      */
+
+      ctx.strokeStyle =
+        "#dddddd";
+
+      ctx.lineWidth =
+        1;
+
+
+      /*
+      Horizontal grid lines
+      */
+
+      for (
+        let y = 0;
+        y <= 100;
+        y += 20
+      ) {
+
+        const canvasY =
+          yToCanvas(y);
+
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+          left,
+          canvasY
+        );
+
+        ctx.lineTo(
+          width - right,
+          canvasY
+        );
+
+        ctx.stroke();
+
+
+        /*
+        Y labels
+        */
+
+        ctx.fillStyle =
+          "#444";
+
+        ctx.font =
+          "12px Arial";
+
+        ctx.fillText(
+          y,
+          25,
+          canvasY + 4
+        );
+
+      }
+
+
+      /*
+      Vertical grid lines
+      */
+
+      for (
+        let x = -100;
+        x <= 100;
+        x += 50
+      ) {
+
+        const canvasX =
+          xToCanvas(x);
+
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+          canvasX,
+          top
+        );
+
+        ctx.lineTo(
+          canvasX,
+          height - bottom
+        );
+
+        ctx.stroke();
+
+
+        ctx.fillStyle =
+          "#444";
+
+        ctx.font =
+          "12px Arial";
+
+        ctx.fillText(
+          x,
+          canvasX - 10,
+          height - 25
+        );
+
+      }
+
+
+      /*
+      ----------------------------------------
+      AXES
+      ----------------------------------------
+      */
+
+      ctx.strokeStyle =
+        "#222";
+
+      ctx.lineWidth =
+        1.5;
+
+
+      /*
+      X axis
+      */
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        left,
+        yToCanvas(0)
+      );
+
+      ctx.lineTo(
+        width - right,
+        yToCanvas(0)
+      );
+
+      ctx.stroke();
+
+
+      /*
+      Y axis
+      */
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        xToCanvas(0),
+        top
+      );
+
+      ctx.lineTo(
+        xToCanvas(0),
+        height - bottom
+      );
+
+      ctx.stroke();
+
+
+      /*
+      ----------------------------------------
+      MATHEMATICAL CURVE
+      ----------------------------------------
+      */
+
+      ctx.strokeStyle =
+        "#222";
+
+      ctx.lineWidth =
+        3;
+
+
+      ctx.beginPath();
+
+
+      let firstPoint =
+        true;
+
+
+      for (
+        let z = -100;
+        z <= 100;
+        z += 1
+      ) {
+
+        const r =
+          calculateRadius(z);
+
+
+        const x =
+          xToCanvas(z);
+
+        const y =
+          yToCanvas(r);
+
+
+        if (firstPoint) {
+
+          ctx.moveTo(
+            x,
+            y
+          );
+
+          firstPoint =
+            false;
+
         }
 
-        changeSize(observations[i]);
+        else {
 
-      }, 600);
+          ctx.lineTo(
+            x,
+            y
+          );
 
-    });
-
-
-    function answer(choice) {
-
-      question.style.display = "none";
-      result.style.display = "block";
-
-
-      if (choice === "sphere") {
-
-        result.innerHTML = `
-          <strong>Your hypothesis matches our hidden model.</strong>
-
-          <p>
-          A 3D sphere passed through the 2D world.
-          </p>
-
-          <p>
-          But notice something important:
-          you never actually saw the sphere.
-          You only observed its changing cross-section.
-          </p>
-        `;
+        }
 
       }
 
 
-      else if (choice === "expand") {
-
-        result.innerHTML = `
-          <strong>That is a possible explanation.</strong>
-
-          <p>
-          But is it the only explanation?
-          </p>
-
-          <p>
-          The interesting scientific question is:
-          can we distinguish between competing explanations
-          using only observations?
-          </p>
-        `;
-
-      }
+      ctx.stroke();
 
 
-      else {
+      /*
+      ----------------------------------------
+      CURRENT POSITION POINT
+      ----------------------------------------
+      */
 
-        result.innerHTML = `
-          <strong>Good scientific caution.</strong>
+      const currentRadius =
+        calculateRadius(currentZ);
 
-          <p>
-          An observation does not automatically prove
-          its explanation.
-          </p>
 
-          <p>
-          Let's collect more evidence.
-          </p>
-        `;
+      const currentX =
+        xToCanvas(currentZ);
 
-      }
+      const currentY =
+        yToCanvas(currentRadius);
+
+
+      ctx.fillStyle =
+        "#000";
+
+
+      ctx.beginPath();
+
+      ctx.arc(
+        currentX,
+        currentY,
+        7,
+        0,
+        Math.PI * 2
+      );
+
+      ctx.fill();
+
+
+      /*
+      ----------------------------------------
+      LABELS
+      ----------------------------------------
+      */
+
+      ctx.fillStyle =
+        "#222";
+
+      ctx.font =
+        "14px Arial";
+
+
+      ctx.fillText(
+        "Hidden position z",
+        width / 2 - 50,
+        height - 8
+      );
+
+
+      ctx.save();
+
+      ctx.translate(
+        15,
+        height / 2 + 40
+      );
+
+      ctx.rotate(
+        -Math.PI / 2
+      );
+
+      ctx.fillText(
+        "Visible radius r",
+        0,
+        0
+      );
+
+      ctx.restore();
 
     }
 
 
-    resetButton.addEventListener("click", function () {
+    /*
+    ==========================================================
+    7. FIRST OBSERVATION
+    ==========================================================
+    */
 
-      changeSize(8);
+    let animationTimer =
+      null;
 
-      message.innerText =
-        "Watch carefully. Something is about to happen.";
 
-      question.style.display = "none";
-      result.style.display = "none";
+    startButton.addEventListener(
+      "click",
+      function () {
 
-      startButton.disabled = false;
+        startButton.disabled =
+          true;
 
-    });
+
+        question.style.display =
+          "none";
+
+
+        investigation.style.display =
+          "none";
+
+
+        result.style.display =
+          "none";
+
+
+        message.innerText =
+          "Observation in progress...";
+
+
+        let index =
+          0;
+
+
+        showCrossSection(
+          observationPositions[index]
+        );
+
+
+        animationTimer =
+          setInterval(
+            function () {
+
+              index++;
+
+
+              if (
+                index >=
+                observationPositions.length
+              ) {
+
+                clearInterval(
+                  animationTimer
+                );
+
+
+                animationTimer =
+                  null;
+
+
+                message.innerText =
+                  "Observation complete. What do you think happened?";
+
+
+                question.style.display =
+                  "block";
+
+
+                return;
+
+              }
+
+
+              showCrossSection(
+                observationPositions[index]
+              );
+
+            },
+
+            500
+          );
+
+      }
+    );
+
+
+    /*
+    ==========================================================
+    8. USER HYPOTHESIS
+    ==========================================================
+    */
+
+    const answerButtons =
+      document.querySelectorAll(
+        "[data-answer]"
+      );
+
+
+    answerButtons.forEach(
+      function (button) {
+
+        button.addEventListener(
+          "click",
+          function () {
+
+            const answer =
+              button.dataset.answer;
+
+
+            question.style.display =
+              "none";
+
+
+            /*
+            --------------------------------------
+            EXPANDING CIRCLE
+            --------------------------------------
+            */
+
+            if (
+              answer ===
+              "expand"
+            ) {
+
+              message.innerText =
+                "That explanation is possible, but it is not the only possible explanation.";
+
+
+              result.style.display =
+                "block";
+
+
+              result.innerHTML = `
+
+                <strong>
+                  Good hypothesis.
+                </strong>
+
+                <p>
+                  Something inside the 2D world
+                  could have expanded and contracted.
+                </p>
+
+                <p>
+                  But another possibility exists:
+                  a higher-dimensional object could
+                  have passed through the 2D plane.
+                </p>
+
+              `;
+
+            }
+
+
+            /*
+            --------------------------------------
+            SPHERE
+            --------------------------------------
+            */
+
+            else if (
+              answer ===
+              "sphere"
+            ) {
+
+              message.innerText =
+                "You identified the hidden model.";
+
+
+              result.style.display =
+                "block";
+
+
+              result.innerHTML = `
+
+                <strong>
+                  You identified the hidden model.
+                </strong>
+
+                <p>
+                  A 3D sphere passed through
+                  the 2D plane.
+                </p>
+
+                <p>
+                  The 2D observer never saw
+                  the sphere itself.
+                  It only observed the changing
+                  cross-section.
+                </p>
+
+              `;
+
+            }
+
+
+            /*
+            --------------------------------------
+            NOT ENOUGH INFORMATION
+            --------------------------------------
+            */
+
+            else {
+
+              message.innerText =
+                "That is a scientifically cautious answer.";
+
+
+              result.style.display =
+                "block";
+
+
+              result.innerHTML = `
+
+                <strong>
+                  Good scientific caution.
+                </strong>
+
+                <p>
+                  An observation does not automatically
+                  prove its explanation.
+                </p>
+
+                <p>
+                  We need more evidence to distinguish
+                  between competing explanations.
+                </p>
+
+              `;
+
+            }
+
+
+            /*
+            --------------------------------------
+            START INVESTIGATION
+            --------------------------------------
+            */
+
+            investigation.style.display =
+              "block";
+
+
+            /*
+            Start at z = 0
+            */
+
+            positionSlider.value =
+              0;
+
+
+            showCrossSection(0);
+
+          }
+
+        );
+
+      }
+    );
+
+
+    /*
+    ==========================================================
+    9. SLIDER
+
+    User controls the hidden position.
+    ==========================================================
+    */
+
+    positionSlider.addEventListener(
+      "input",
+      function () {
+
+        const z =
+          Number(
+            positionSlider.value
+          );
+
+
+        showCrossSection(z);
+
+      }
+    );
+
+
+    /*
+    ==========================================================
+    10. RESET
+    ==========================================================
+    */
+
+    resetButton.addEventListener(
+      "click",
+      function () {
+
+        if (
+          animationTimer !==
+          null
+        ) {
+
+          clearInterval(
+            animationTimer
+          );
+
+          animationTimer =
+            null;
+
+        }
+
+
+        /*
+        Reset visual
+        */
+
+        showCrossSection(120);
+
+
+        /*
+        Reset slider
+        */
+
+        positionSlider.value =
+          0;
+
+
+        zValue.textContent =
+          "0";
+
+
+        radiusValue.textContent =
+          "100";
+
+
+        /*
+        Hide later stages
+        */
+
+        question.style.display =
+          "none";
+
+
+        investigation.style.display =
+          "none";
+
+
+        result.style.display =
+          "none";
+
+
+        /*
+        Reset message
+        */
+
+        message.innerText =
+          "Watch carefully. Something is about to pass through your world.";
+
+
+        /*
+        Enable start
+        */
+
+        startButton.disabled =
+          false;
+
+      }
+    );
+
+
+    /*
+    ==========================================================
+    INITIAL STATE
+    ==========================================================
+    */
+
+    showCrossSection(120);
 
   </script>
 
